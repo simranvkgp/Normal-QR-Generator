@@ -398,11 +398,6 @@
     document.getElementById(errId).classList.remove('show');
     if(!text) { document.getElementById(errId).classList.add('show'); return; }
 
-    // Normalize common "share link" formats to reduce 404s from incomplete URLs.
-    if(type==='pdf' || type==='ak') {
-      text = normalizeHostedLink(text);
-    }
-
     const size  = parseInt(document.getElementById('qr-size').value);
     const dark  = document.getElementById('qr-dark').value;
     const light = document.getElementById('qr-light').value;
@@ -427,45 +422,6 @@
     document.getElementById('empty-state').style.display='none';
     const wrap = document.getElementById('qr-wrap');
     wrap.classList.remove('visible'); void wrap.offsetWidth; wrap.classList.add('visible');
-  }
-
-  function normalizeHostedLink(input) {
-    let raw = (input || '').trim();
-
-    // If someone pasted without scheme (e.g. "drive.google.com/..."), add it.
-    if(raw && !/^https?:\/\//i.test(raw)) {
-      raw = 'https://' + raw.replace(/^\/+/, '');
-    }
-
-    let u;
-    try { u = new URL(raw); } catch { return input; }
-
-    const host = u.hostname.toLowerCase();
-
-    // Google Drive: convert to a "view" share link using the file id.
-    if(host.includes('drive.google.com')) {
-      // /file/d/<id>/... OR /file/d/<id>
-      const m1 = u.pathname.match(/^\/file\/d\/([^\/]+)(?:\/.*)?$/);
-      if(m1 && m1[1]) {
-        const id = m1[1];
-        return `https://drive.google.com/file/d/${id}/view?usp=sharing`;
-      }
-
-      // /open?id=<id>  OR /uc?id=<id>
-      const id = u.searchParams.get('id');
-      if(id) {
-        return `https://drive.google.com/file/d/${id}/view?usp=sharing`;
-      }
-    }
-
-    // Dropbox: ensure dl=1 so the link works without interactive preview.
-    if(host.includes('dropbox.com')) {
-      u.searchParams.set('dl', '1');
-      return u.toString();
-    }
-
-    // OneDrive / Classroom etc: return as-is.
-    return raw;
   }
 
   function getCanvas() { return document.querySelector('#qrcode canvas'); }
