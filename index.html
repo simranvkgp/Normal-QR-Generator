@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Magic ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#fdf4ff;--card:#ffffff;
+    --peach:#ffb3c6;--lavender:#c8b6ff;--mint:#b5ead7;
+    --sky:#a8d8ea;--yellow:#ffe8a3;--coral:#ff8fab;
+    --purple:#9d79e0;--text:#4a3f6b;--muted:#a89ec9;
+    --shadow:rgba(157,121,224,0.15);
+    --orange:#ffcba4;--lime:#d4f5b0;--rose:#ffd6e0;
+  }
+  body{background:var(--bg);font-family:'Nunito',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;position:relative;overflow-x:hidden}
+  .blob{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;animation:blobFloat 8s ease-in-out infinite alternate}
+  .blob-1{width:380px;height:380px;background:#f9c6ff88;top:-100px;left:-120px}
+  .blob-2{width:300px;height:300px;background:#a8d8ea66;bottom:-80px;right:-80px;animation-delay:2s}
+  .blob-3{width:220px;height:220px;background:#ffe8a366;top:40%;left:58%;animation-delay:4s}
+  @keyframes blobFloat{from{transform:translate(0,0) scale(1)}to{transform:translate(20px,-20px) scale(1.05)}}
+  .sparkle{position:fixed;font-size:1.2rem;pointer-events:none;z-index:0;animation:sparkleFloat 6s ease-in-out infinite alternate;opacity:0.45}
+  .sparkle:nth-child(1){top:12%;left:8%}.sparkle:nth-child(2){top:70%;left:5%;animation-delay:1.5s}
+  .sparkle:nth-child(3){top:20%;right:7%;animation-delay:0.8s}.sparkle:nth-child(4){top:75%;right:9%;animation-delay:2.5s}
+  .sparkle:nth-child(5){top:45%;left:3%;animation-delay:3s}
+  @keyframes sparkleFloat{0%{transform:translateY(0) rotate(0deg) scale(1)}100%{transform:translateY(-18px) rotate(20deg) scale(1.2)}}
+  .wrapper{position:relative;z-index:1;width:100%;max-width:560px}
+  header{text-align:center;margin-bottom:2rem}
+  .pill-tag{display:inline-block;background:linear-gradient(135deg,var(--lavender),var(--peach));color:#fff;font-size:0.72rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:0.3rem 1rem;border-radius:99px;margin-bottom:0.9rem;box-shadow:0 4px 14px rgba(200,182,255,0.4)}
+  h1{font-family:'Pacifico',cursive;font-size:clamp(2.2rem,7vw,3.6rem);background:linear-gradient(135deg,var(--purple) 0%,var(--coral) 60%,#ffb347 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15}
+  .subtitle{color:var(--muted);font-size:0.88rem;font-weight:600;margin-top:0.4rem}
+
+  /* Card */
+  .card{background:var(--card);border-radius:28px;padding:2rem;box-shadow:0 4px 24px var(--shadow),0 1px 2px rgba(0,0,0,0.04),inset 0 1px 0 rgba(255,255,255,0.9)}
+
+  /* Tabs — 3 across */
+  .tabs{display:flex;gap:0.4rem;margin-bottom:1.5rem;background:#f8f4ff;border-radius:18px;padding:5px}
+  .tab-btn{flex:1;font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:800;border:none;border-radius:13px;padding:0.55rem 0.3rem;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:0.25rem;white-space:nowrap}
+  .tab-btn.active{background:#fff;color:var(--purple);box-shadow:0 2px 10px rgba(157,121,224,0.2)}
+  .tab-btn.active.ak{color:#e06b2a}
+  .tab-panel{display:none}.tab-panel.active{display:block}
+
+  /* Fields */
+  .field-label{font-size:0.75rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--purple);margin-bottom:0.5rem;display:block}
+  .field-label.orange{color:#e06b2a}
+  .input-row{display:flex;gap:0.65rem;margin-bottom:0.6rem}
+  input[type="text"]{flex:1;background:#f8f4ff;border:2px solid #e8dfff;border-radius:14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.88rem;font-weight:600;padding:0.72rem 1rem;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+  input[type="text"]:focus{border-color:var(--lavender);box-shadow:0 0 0 4px rgba(200,182,255,0.2)}
+  input[type="text"]::placeholder{color:#ccc0ee}
+  input[type="text"].orange-focus:focus{border-color:#ffb347;box-shadow:0 0 0 4px rgba(255,179,71,0.2)}
+
+  /* Buttons */
+  .btn-gen{background:linear-gradient(135deg,var(--purple),var(--coral));color:#fff;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:800;border:none;border-radius:14px;padding:0.72rem 1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(157,121,224,0.35);transition:transform 0.15s,box-shadow 0.15s;white-space:nowrap}
+  .btn-gen.orange{background:linear-gradient(135deg,#ff9f43,#ff6b9d)}
+  .btn-gen:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(157,121,224,0.4)}
+  .btn-gen.orange:hover{box-shadow:0 8px 24px rgba(255,107,157,0.4)}
+  .btn-gen:active{transform:scale(0.96)}
+
+  .error{font-size:0.78rem;color:#ff6b9d;font-weight:700;margin-bottom:0.8rem;display:none;padding:0.4rem 0.8rem;background:#fff0f5;border-radius:8px}
+  .error.show{display:block}
+
+  /* Options */
+  .options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.9rem;margin:1.2rem 0 1.5rem;padding:1.2rem;background:linear-gradient(135deg,#f8f4ff,#fff0fa);border-radius:18px}
+  .opt-group{display:flex;flex-direction:column;gap:0.45rem}
+  select{background:#fff;border:2px solid #e8dfff;border-radius:10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.82rem;font-weight:700;padding:0.5rem 1.8rem 0.5rem 0.6rem;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239d79e0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.6rem center;transition:border-color 0.2s}
+  select:focus{border-color:var(--lavender)}
+  input[type="color"]{width:100%;height:38px;border:2px solid #e8dfff;border-radius:10px;padding:3px 5px;cursor:pointer;background:#fff;outline:none}
+
+  /* PDF drop zone */
+  .pdf-drop-zone{border:2.5px dashed #d9cfff;border-radius:20px;padding:1.6rem 1.5rem;text-align:center;cursor:pointer;transition:all 0.25s;background:linear-gradient(135deg,#f8f4ff,#fff0fa);position:relative;overflow:hidden;margin-bottom:1rem}
+  .pdf-drop-zone.orange-zone{border-color:#ffd6a5;background:linear-gradient(135deg,#fff8f0,#fff0fa)}
+  .pdf-drop-zone:hover,.pdf-drop-zone.drag-over{border-color:var(--purple);background:linear-gradient(135deg,#f0ebff,#ffe8f5);box-shadow:0 0 0 4px rgba(200,182,255,0.2)}
+  .pdf-drop-zone.orange-zone:hover,.pdf-drop-zone.orange-zone.drag-over{border-color:#ff9f43;background:linear-gradient(135deg,#fff3e0,#ffe8f5);box-shadow:0 0 0 4px rgba(255,159,67,0.15)}
+  .pdf-drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .drop-icon{font-size:2.5rem;margin-bottom:0.5rem;display:block;animation:bounce 2s ease-in-out infinite}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .drop-title{font-weight:800;color:var(--purple);font-size:0.95rem;margin-bottom:0.2rem}
+  .drop-title.orange{color:#e06b2a}
+  .drop-sub{color:var(--muted);font-size:0.75rem;font-weight:600}
+
+  /* PDF preview */
+  .pdf-preview{display:none;align-items:center;gap:1rem;padding:0.9rem 1.1rem;border-radius:16px;margin-bottom:1rem;border:1.5px solid #e0d4ff;animation:slideIn 0.3s ease}
+  .pdf-preview.book-style{background:linear-gradient(135deg,#f0ebff,#ffe8f5)}
+  .pdf-preview.ak-style{background:linear-gradient(135deg,#fff3e0,#fff0f8);border-color:#ffd6a5}
+  .pdf-preview.show{display:flex}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+  .pdf-icon-wrap{width:44px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.12)}
+  .pdf-icon-wrap.book{background:linear-gradient(135deg,var(--purple),var(--coral))}
+  .pdf-icon-wrap.ak{background:linear-gradient(135deg,#ff9f43,#ff6b9d)}
+  .pdf-info{flex:1;min-width:0}
+  .pdf-name{font-weight:800;color:var(--text);font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:0.2rem}
+  .pdf-meta{font-size:0.7rem;color:var(--muted);font-weight:600}
+  .pdf-remove{background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--muted);padding:0.2rem;border-radius:6px;transition:color 0.15s;flex-shrink:0}
+  .pdf-remove:hover{color:var(--coral)}
+
+  /* Info / tip box */
+  .info-box{padding:0.65rem 0.9rem;background:#fff9e6;border:1.5px solid #ffe8a3;border-radius:12px;font-size:0.73rem;font-weight:600;color:#7a5c00;margin-bottom:1rem;line-height:1.5}
+  .info-box b{color:#c47800}
+  .info-box.red-info{background:#fff0f5;border-color:var(--peach);color:#7a003d}
+  .info-box.red-info b{color:#c4005a}
+
+  /* Answer key badge */
+  .ak-badge{display:inline-flex;align-items:center;gap:0.4rem;background:linear-gradient(135deg,#ff9f43,#ff6b9d);color:#fff;font-size:0.7rem;font-weight:800;padding:0.25rem 0.8rem;border-radius:99px;margin-bottom:0.9rem;box-shadow:0 3px 10px rgba(255,107,157,0.3);letter-spacing:0.06em;text-transform:uppercase}
+
+  /* Subject tags */
+  .subject-tags{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.9rem}
+  .stag{font-family:'Nunito',sans-serif;font-size:0.7rem;font-weight:800;border:1.5px solid #ffd6a5;background:#fff8f0;color:#e06b2a;border-radius:99px;padding:0.22rem 0.7rem;cursor:pointer;transition:all 0.15s}
+  .stag:hover{background:#ff9f43;color:#fff;border-color:#ff9f43}
+
+  /* Presets */
+  .url-presets{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.75rem}
+  .preset-chip{font-family:'Nunito',sans-serif;font-size:0.7rem;font-weight:800;border:1.5px solid #e0d4ff;background:#f8f4ff;color:var(--purple);border-radius:99px;padding:0.22rem 0.7rem;cursor:pointer;transition:all 0.15s}
+  .preset-chip:hover{background:var(--lavender);color:#fff;border-color:var(--lavender)}
+  .preset-chip.orange{border-color:#ffd6a5;background:#fff8f0;color:#e06b2a}
+  .preset-chip.orange:hover{background:#ff9f43;color:#fff;border-color:#ff9f43}
+
+  /* Access level selector */
+  .access-row{display:flex;gap:0.5rem;margin-bottom:1rem}
+  .access-opt{flex:1;text-align:center;border:1.5px solid #e0d4ff;border-radius:12px;padding:0.5rem 0.3rem;cursor:pointer;font-size:0.72rem;font-weight:800;color:var(--muted);transition:all 0.2s;background:#f8f4ff}
+  .access-opt.selected{border-color:#ff9f43;background:linear-gradient(135deg,#fff3e0,#ffe8f5);color:#e06b2a;box-shadow:0 2px 8px rgba(255,159,67,0.25)}
+
+  /* Divider */
+  .divider{display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;color:var(--muted);font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase}
+  .divider::before,.divider::after{content:'';flex:1;height:1.5px;background:linear-gradient(90deg,transparent,#e8dfff,transparent)}
+
+  /* Output */
+  .output-section{display:flex;flex-direction:column;align-items:center;min-height:60px}
+  .empty-state{text-align:center;padding:1.5rem 0 0.5rem}
+  .empty-icon{font-size:3rem;display:block;margin-bottom:0.5rem;animation:wiggle 3s ease-in-out infinite}
+  @keyframes wiggle{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+  .empty-state p{color:var(--muted);font-size:0.85rem;font-weight:600}
+  #qr-wrap{display:none;flex-direction:column;align-items:center;gap:1.25rem;width:100%}
+  #qr-wrap.visible{display:flex;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+  @keyframes popIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+  #qr-canvas-container{padding:16px;background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(157,121,224,0.18),0 2px 8px rgba(255,143,171,0.15);position:relative;overflow:hidden}
+  #qr-canvas-container::before{content:'';position:absolute;inset:-2px;border-radius:22px;background:linear-gradient(135deg,var(--lavender),var(--peach),var(--mint),var(--sky),var(--lavender));background-size:300% 300%;animation:shimmer 4s linear infinite;z-index:-1}
+  @keyframes shimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  #qrcode canvas,#qrcode img{display:block;border-radius:6px}
+  .qr-meta{text-align:center;font-size:0.75rem;font-weight:600;color:var(--muted);max-width:320px;word-break:break-all;line-height:1.6;background:#f8f4ff;padding:0.5rem 1rem;border-radius:10px}
+  .qr-meta strong{color:var(--purple)}
+  .qr-meta.ak-meta{background:#fff8f0}.qr-meta.ak-meta strong{color:#e06b2a}
+  .btn-row{display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center}
+  .btn-action{display:flex;align-items:center;gap:0.4rem;font-family:'Nunito',sans-serif;font-size:0.82rem;font-weight:800;border:none;border-radius:12px;padding:0.65rem 1.2rem;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s}
+  .btn-action:hover{transform:translateY(-2px)}.btn-action:active{transform:scale(0.96)}
+  .btn-dl{background:linear-gradient(135deg,var(--mint),var(--sky));color:#2d6a5a;box-shadow:0 4px 14px rgba(181,234,215,0.5)}
+  .btn-copy{background:linear-gradient(135deg,var(--yellow),var(--peach));color:#7a4f00;box-shadow:0 4px 14px rgba(255,232,163,0.5)}
+  footer{text-align:center;margin-top:1.5rem;font-size:0.72rem;color:var(--muted);font-weight:600}
+  footer span{color:var(--coral)}
+  @media(max-width:460px){.options{grid-template-columns:1fr 1fr}.input-row{flex-direction:column}.tabs{gap:0.25rem}.tab-btn{font-size:0.7rem;padding:0.5rem 0.2rem}}
+</style>
+</head>
+<body>
+<div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+<div class="sparkle">✦</div><div class="sparkle">✿</div><div class="sparkle">✦</div><div class="sparkle">✿</div><div class="sparkle">⋆</div>
+
+<div class="wrapper">
+  <header>
+    <div class="pill-tag">✨ Free &amp; Instant</div>
+    <h1>QR Magic ✨</h1>
+    <p class="subtitle">Links, Book PDFs &amp; Answer Keys — all as scannable QRs 🌸</p>
+  </header>
+
+  <div class="card">
+
+    <!-- ── TABS ── -->
+    <div class="tabs">
+      <button class="tab-btn active"   onclick="switchTab('link')">🔗 Link / Text</button>
+      <button class="tab-btn"          onclick="switchTab('pdf')">📚 Book PDF</button>
+      <button class="tab-btn ak"       onclick="switchTab('ak')">📝 Answer Key</button>
+    </div>
+
+    <!-- ══ TAB 1: Link / Text ══ -->
+    <div class="tab-panel active" id="tab-link">
+      <label class="field-label" for="qr-input">🔗 Your URL or Text</label>
+      <div class="input-row">
+        <input type="text" id="qr-input" placeholder="https://anything-you-like.com" autocomplete="off" spellcheck="false">
+        <button class="btn-gen" onclick="generateQR('link')">✦ Create</button>
+      </div>
+      <p class="error" id="error-link">🌸 Please enter some text or a URL first!</p>
+    </div>
+
+    <!-- ══ TAB 2: Book PDF ══ -->
+    <div class="tab-panel" id="tab-pdf">
+      <div class="pdf-drop-zone" id="drop-zone-book">
+        <input type="file" id="pdf-file-book" accept=".pdf" onchange="handlePdfFile(this.files[0],'book')">
+        <span class="drop-icon">📚</span>
+        <div class="drop-title">Drop your Book PDF here</div>
+        <div class="drop-sub">or click to browse · .pdf only</div>
+      </div>
+      <div class="pdf-preview book-style" id="pdf-preview-book">
+        <div class="pdf-icon-wrap book">📄</div>
+        <div class="pdf-info">
+          <div class="pdf-name" id="pdf-name-book">book.pdf</div>
+          <div class="pdf-meta" id="pdf-meta-book">0 KB · PDF</div>
+        </div>
+        <button class="pdf-remove" onclick="removePdf('book')">✕</button>
+      </div>
+      <div class="info-box">💡 <b>Tip:</b> QR codes store a <b>web link</b>, not the file itself. Upload to Google Drive / Dropbox, copy the share link, paste below.</div>
+      <label class="field-label">🌐 Hosted Book PDF Link</label>
+      <div class="url-presets">
+        <button class="preset-chip" onclick="setPreset('book','https://drive.google.com/file/d/')">📂 Google Drive</button>
+        <button class="preset-chip" onclick="setPreset('book','https://www.dropbox.com/s/')">📦 Dropbox</button>
+        <button class="preset-chip" onclick="setPreset('book','https://onedrive.live.com/redir?resid=')">☁️ OneDrive</button>
+      </div>
+      <div class="input-row">
+        <input type="text" id="pdf-url-book" placeholder="Paste your hosted PDF share link…" autocomplete="off" spellcheck="false">
+        <button class="btn-gen" onclick="generateQR('pdf')">✦ Create</button>
+      </div>
+      <p class="error" id="error-pdf">🌸 Please paste a hosted PDF link first!</p>
+    </div>
+
+    <!-- ══ TAB 3: Answer Key PDF ══ -->
+    <div class="tab-panel" id="tab-ak">
+      <div class="ak-badge">🔑 Answer Key Generator</div>
+
+      <!-- Subject quick-tags -->
+      <div class="subject-tags">
+        <button class="stag" onclick="fillSubject('Math')">📐 Math</button>
+        <button class="stag" onclick="fillSubject('Science')">🔬 Science</button>
+        <button class="stag" onclick="fillSubject('English')">📖 English</button>
+        <button class="stag" onclick="fillSubject('History')">🏛️ History</button>
+        <button class="stag" onclick="fillSubject('Biology')">🧬 Biology</button>
+        <button class="stag" onclick="fillSubject('Chemistry')">⚗️ Chemistry</button>
+      </div>
+
+      <!-- Title field -->
+      <label class="field-label orange" for="ak-title">📋 Exam / Subject Title</label>
+      <div class="input-row" style="margin-bottom:1rem">
+        <input type="text" id="ak-title" class="orange-focus" placeholder="e.g. Class 10 Science — Chapter 5 Test" autocomplete="off">
+      </div>
+
+      <!-- Drop zone for AK PDF -->
+      <div class="pdf-drop-zone orange-zone" id="drop-zone-ak">
+        <input type="file" id="pdf-file-ak" accept=".pdf" onchange="handlePdfFile(this.files[0],'ak')">
+        <span class="drop-icon">🔑</span>
+        <div class="drop-title orange">Drop your Answer Key PDF</div>
+        <div class="drop-sub">or click to browse · .pdf only</div>
+      </div>
+      <div class="pdf-preview ak-style" id="pdf-preview-ak">
+        <div class="pdf-icon-wrap ak">🔑</div>
+        <div class="pdf-info">
+          <div class="pdf-name" id="pdf-name-ak">answerkey.pdf</div>
+          <div class="pdf-meta" id="pdf-meta-ak">0 KB · PDF</div>
+        </div>
+        <button class="pdf-remove" onclick="removePdf('ak')">✕</button>
+      </div>
+
+      <!-- Access level -->
+      <label class="field-label orange" style="margin-bottom:0.5rem">🔒 Access Level</label>
+      <div class="access-row" style="margin-bottom:1rem">
+        <div class="access-opt selected" id="acc-public"  onclick="selectAccess('public')">🌍 Public<br><span style="font-size:0.64rem;font-weight:600;opacity:0.75">Anyone can scan</span></div>
+        <div class="access-opt"          id="acc-private" onclick="selectAccess('private')">🔐 Private<br><span style="font-size:0.64rem;font-weight:600;opacity:0.75">Link with password</span></div>
+        <div class="access-opt"          id="acc-timed"   onclick="selectAccess('timed')">⏰ Timed<br><span style="font-size:0.64rem;font-weight:600;opacity:0.75">Expires after exam</span></div>
+      </div>
+
+      <div class="info-box red-info">🔑 <b>Note:</b> Upload your Answer Key PDF to Google Drive with <b>restricted access</b> so only students with the link can view it. Paste the share link below.</div>
+
+      <label class="field-label orange">🌐 Hosted Answer Key Link</label>
+      <div class="url-presets">
+        <button class="preset-chip orange" onclick="setPreset('ak','https://drive.google.com/file/d/')">📂 Google Drive</button>
+        <button class="preset-chip orange" onclick="setPreset('ak','https://www.dropbox.com/s/')">📦 Dropbox</button>
+        <button class="preset-chip orange" onclick="setPreset('ak','https://classroom.google.com/c/')">🏫 Google Classroom</button>
+      </div>
+      <div class="input-row">
+        <input type="text" id="pdf-url-ak" class="orange-focus" placeholder="Paste your hosted Answer Key link…" autocomplete="off" spellcheck="false">
+        <button class="btn-gen orange" onclick="generateQR('ak')">🔑 Create</button>
+      </div>
+      <p class="error" id="error-ak">🌸 Please paste a hosted Answer Key link first!</p>
+    </div>
+
+    <!-- ── Shared Options ── -->
+    <div class="options">
+      <div class="opt-group">
+        <label class="field-label" style="font-size:0.7rem">📐 Size</label>
+        <select id="qr-size">
+          <option value="160">160 px</option>
+          <option value="200">200 px</option>
+          <option value="240" selected>240 px</option>
+          <option value="300">300 px</option>
+          <option value="400">400 px</option>
+        </select>
+      </div>
+      <div class="opt-group">
+        <label class="field-label" style="font-size:0.7rem">🎨 Dark</label>
+        <input type="color" id="qr-dark" value="#6c3fcf">
+      </div>
+      <div class="opt-group">
+        <label class="field-label" style="font-size:0.7rem">🌟 Light</label>
+        <input type="color" id="qr-light" value="#ffffff">
+      </div>
+    </div>
+
+    <div class="divider">your qr code</div>
+
+    <div class="output-section">
+      <div class="empty-state" id="empty-state">
+        <span class="empty-icon">🪄</span>
+        <p>Fill in the details above &amp; hit <strong>Create</strong>!</p>
+      </div>
+      <div id="qr-wrap">
+        <div id="qr-canvas-container"><div id="qrcode"></div></div>
+        <div class="qr-meta" id="qr-meta"></div>
+        <div class="btn-row">
+          <button class="btn-action btn-dl"   onclick="downloadQR()">⬇ Download PNG</button>
+          <button class="btn-action btn-copy" id="copy-btn" onclick="copyQR()">⎘ Copy Image</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer>Made with <span>♥</span> — 100% client-side · no data sent anywhere 🌷</footer>
+</div>
+
+<script>
+  let lastText = '', currentTab = 'link', selectedAccess = 'public';
+
+  /* ── Tab switch ── */
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach((b,i) => {
+      b.classList.toggle('active', ['link','pdf','ak'][i] === tab);
+    });
+    ['link','pdf','ak'].forEach(t => {
+      document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    });
+    // Update QR color accent for AK tab
+    document.getElementById('qr-dark').value = tab==='ak' ? '#c44b00' : '#6c3fcf';
+  }
+
+  /* ── Enter key ── */
+  document.getElementById('qr-input').addEventListener('keydown',   e => { if(e.key==='Enter') generateQR('link'); });
+  document.getElementById('pdf-url-book').addEventListener('keydown', e => { if(e.key==='Enter') generateQR('pdf'); });
+  document.getElementById('pdf-url-ak').addEventListener('keydown',   e => { if(e.key==='Enter') generateQR('ak'); });
+  ['qr-size','qr-dark','qr-light'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => { if(lastText) generateQR(currentTab); });
+  });
+
+  /* ── Drag-over ── */
+  ['book','ak'].forEach(type => {
+    const dz = document.getElementById('drop-zone-'+type);
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('drag-over');
+      const f = e.dataTransfer.files[0];
+      if(f && f.type==='application/pdf') handlePdfFile(f, type);
+    });
+  });
+
+  /* ── PDF file ── */
+  function handlePdfFile(file, type) {
+    if(!file || file.type!=='application/pdf') return;
+    document.getElementById('pdf-name-'+type).textContent = file.name;
+    document.getElementById('pdf-meta-'+type).textContent = fmtSize(file.size) + ' · PDF Document';
+    document.getElementById('pdf-preview-'+type).classList.add('show');
+    const urlInput = document.getElementById('pdf-url-'+(type==='book'?'book':'ak'));
+    if(!urlInput.value) urlInput.placeholder = '← Paste the hosted link for: ' + file.name;
+  }
+  function removePdf(type) {
+    document.getElementById('pdf-preview-'+type).classList.remove('show');
+    document.getElementById('pdf-file-'+type).value = '';
+  }
+  function fmtSize(b) {
+    if(b<1024) return b+' B';
+    if(b<1048576) return (b/1024).toFixed(1)+' KB';
+    return (b/1048576).toFixed(2)+' MB';
+  }
+
+  /* ── Presets & subject tags ── */
+  function setPreset(type, url) {
+    const id = type==='book' ? 'pdf-url-book' : 'pdf-url-ak';
+    document.getElementById(id).value = url;
+    document.getElementById(id).focus();
+  }
+  function fillSubject(subj) {
+    const t = document.getElementById('ak-title');
+    if(!t.value) t.value = subj + ' — ';
+    t.focus();
+  }
+
+  /* ── Access level ── */
+  function selectAccess(lvl) {
+    selectedAccess = lvl;
+    ['public','private','timed'].forEach(l => {
+      document.getElementById('acc-'+l).classList.toggle('selected', l===lvl);
+    });
+  }
+
+  /* ── Generate QR ── */
+  function generateQR(type) {
+    let text = '', errId = '';
+    if(type==='link')  { text=document.getElementById('qr-input').value.trim();    errId='error-link'; }
+    if(type==='pdf')   { text=document.getElementById('pdf-url-book').value.trim(); errId='error-pdf'; }
+    if(type==='ak')    { text=document.getElementById('pdf-url-ak').value.trim();   errId='error-ak'; }
+
+    document.getElementById(errId).classList.remove('show');
+    if(!text) { document.getElementById(errId).classList.add('show'); return; }
+
+    // Normalize common "share link" formats to reduce 404s from incomplete URLs.
+    if(type==='pdf' || type==='ak') {
+      text = normalizeHostedLink(text);
+    }
+
+    const size  = parseInt(document.getElementById('qr-size').value);
+    const dark  = document.getElementById('qr-dark').value;
+    const light = document.getElementById('qr-light').value;
+
+    lastText = text;
+    const container = document.getElementById('qrcode');
+    container.innerHTML = '';
+    new QRCode(container, { text, width:size, height:size, colorDark:dark, colorLight:light, correctLevel:QRCode.CorrectLevel.H });
+
+    const trunc = text.length>42 ? text.slice(0,42)+'…' : text;
+    const icons = { link:'🔗', pdf:'📚', ak:'🔑' };
+    const meta  = document.getElementById('qr-meta');
+    meta.className = 'qr-meta' + (type==='ak' ? ' ak-meta' : '');
+    let extraInfo = '';
+    if(type==='ak') {
+      const title = document.getElementById('ak-title').value.trim();
+      const accLabels = {public:'🌍 Public',private:'🔐 Private',timed:'⏰ Timed'};
+      extraInfo = (title ? '<br>📋 '+title : '') + '<br>' + accLabels[selectedAccess];
+    }
+    meta.innerHTML = icons[type]+' <strong>'+trunc+'</strong><br>'+size+'×'+size+' px'+extraInfo;
+
+    document.getElementById('empty-state').style.display='none';
+    const wrap = document.getElementById('qr-wrap');
+    wrap.classList.remove('visible'); void wrap.offsetWidth; wrap.classList.add('visible');
+  }
+
+  function normalizeHostedLink(input) {
+    let raw = (input || '').trim();
+
+    // If someone pasted without scheme (e.g. "drive.google.com/..."), add it.
+    if(raw && !/^https?:\/\//i.test(raw)) {
+      raw = 'https://' + raw.replace(/^\/+/, '');
+    }
+
+    let u;
+    try { u = new URL(raw); } catch { return input; }
+
+    const host = u.hostname.toLowerCase();
+
+    // Google Drive: convert to a "view" share link using the file id.
+    if(host.includes('drive.google.com')) {
+      // /file/d/<id>/... OR /file/d/<id>
+      const m1 = u.pathname.match(/^\/file\/d\/([^\/]+)(?:\/.*)?$/);
+      if(m1 && m1[1]) {
+        const id = m1[1];
+        return `https://drive.google.com/file/d/${id}/view?usp=sharing`;
+      }
+
+      // /open?id=<id>  OR /uc?id=<id>
+      const id = u.searchParams.get('id');
+      if(id) {
+        return `https://drive.google.com/file/d/${id}/view?usp=sharing`;
+      }
+    }
+
+    // Dropbox: ensure dl=1 so the link works without interactive preview.
+    if(host.includes('dropbox.com')) {
+      u.searchParams.set('dl', '1');
+      return u.toString();
+    }
+
+    // OneDrive / Classroom etc: return as-is.
+    return raw;
+  }
+
+  function getCanvas() { return document.querySelector('#qrcode canvas'); }
+  function downloadQR() {
+    const c=getCanvas(); if(!c) return;
+    const a=document.createElement('a'); a.download='qr-magic.png'; a.href=c.toDataURL('image/png'); a.click();
+  }
+  async function copyQR() {
+    const c=getCanvas(); if(!c) return;
+    const btn=document.getElementById('copy-btn');
+    try {
+      c.toBlob(async blob => {
+        await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+        const o=btn.textContent; btn.textContent='✓ Copied! 🎉';
+        setTimeout(()=>{btn.textContent=o;},2000);
+      });
+    } catch { alert('Copy not supported — use Download instead 🌸'); }
+  }
+</script>
+</body>
+</html>
